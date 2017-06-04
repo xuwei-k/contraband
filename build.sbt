@@ -40,6 +40,57 @@ lazy val library = (project in file("library")).
     libraryDependencies ++= Seq(parboiled) ++ jsonDependencies ++ Seq(scalaTest % Test, diffutils % Test)
   )
 
+val scriptedTask = {
+  // workaround https://github.com/sbt/sbt/issues/3245
+  // https://github.com/sbt/sbt/blob/v1.0.0-M6/scripted/plugin/src/main/scala/sbt/ScriptedPlugin.scala#L130-L144
+  // https://github.com/sbt/sbt/blob/v1.0.0-M6/scripted/plugin/src/main/scala/sbt/ScriptedPlugin.scala#L73-L81
+  val p = ScriptedPlugin.asInstanceOf[{def scriptedParser(f: File): complete.Parser[Seq[String]]}]
+
+  Def.inputTask {
+    val args = p.scriptedParser(sbtTestDirectory.value).parsed
+    val prereq: Unit = scriptedDependencies.value
+    try {
+      if((sbtVersion in pluginCrossBuild).value == "1.0.0-M6") {
+        ScriptedPlugin.scriptedTests.value.asInstanceOf[{
+          def run(
+            x1: File,
+            x2: Boolean,
+            x3: Array[String],
+            x4: File,
+            x5: Array[String],
+            x6: java.util.List[File]
+          ): Unit
+        }].run(
+          sbtTestDirectory.value,
+          scriptedBufferLog.value,
+          args.toArray,
+          sbtLauncher.value,
+          scriptedLaunchOpts.value.toArray,
+          new java.util.ArrayList()
+        )
+      } else {
+        ScriptedPlugin.scriptedTests.value.asInstanceOf[{
+          def run(
+            x1: File,
+            x2: Boolean,
+            x3: Array[String],
+            x4: File,
+            x5: Array[String]
+          ): Unit
+        }].run(
+          sbtTestDirectory.value,
+          scriptedBufferLog.value,
+          args.toArray,
+          sbtLauncher.value,
+          scriptedLaunchOpts.value.toArray
+        )
+      }
+    } catch { case e: java.lang.reflect.InvocationTargetException => throw e.getCause }
+  }
+}
+
+
+
 lazy val plugin = (project in file("plugin")).
   enablePlugins(BintrayPublish).
   settings(
@@ -48,55 +99,7 @@ lazy val plugin = (project in file("plugin")).
     name := "sbt-contraband",
     description := "sbt plugin to generate growable datatypes.",
     ScriptedPlugin.scriptedSettings,
-    ScriptedPlugin.scripted := {
-      // workaround https://github.com/sbt/sbt/issues/3245
-      // https://github.com/sbt/sbt/blob/v1.0.0-M6/scripted/plugin/src/main/scala/sbt/ScriptedPlugin.scala#L130-L144
-      // https://github.com/sbt/sbt/blob/v1.0.0-M6/scripted/plugin/src/main/scala/sbt/ScriptedPlugin.scala#L73-L81
-      val p = ScriptedPlugin.asInstanceOf[{def scriptedParser(f: File): complete.Parser[Seq[String]]}]
-
-      Def.inputTask {
-        val args = p.scriptedParser(sbtTestDirectory.value).parsed
-        val prereq: Unit = scriptedDependencies.value
-        try {
-          if((sbtVersion in pluginCrossBuild).value == "1.0.0-M6") {
-            ScriptedPlugin.scriptedTests.value.asInstanceOf[{
-              def run(
-                x1: File,
-                x2: Boolean,
-                x3: Array[String],
-                x4: File,
-                x5: Array[String],
-                x6: java.util.List[File]
-              ): Unit
-            }].run(
-              sbtTestDirectory.value,
-              scriptedBufferLog.value,
-              args.toArray,
-              sbtLauncher.value,
-              scriptedLaunchOpts.value.toArray,
-              new java.util.ArrayList()
-            )
-          } else {
-            ScriptedPlugin.scriptedTests.value.asInstanceOf[{
-              def run(
-                x1: File,
-                x2: Boolean,
-                x3: Array[String],
-                x4: File,
-                x5: Array[String]
-              ): Unit
-            }].run(
-              sbtTestDirectory.value,
-              scriptedBufferLog.value,
-              args.toArray,
-              sbtLauncher.value,
-              scriptedLaunchOpts.value.toArray
-            )
-          }
-        } catch { case e: java.lang.reflect.InvocationTargetException => throw e.getCause }
-      }
-      
-    },
+    ScriptedPlugin.scripted := scriptedTask.evaluated,
     scriptedLaunchOpts := { scriptedLaunchOpts.value ++
       Seq("-Xmx1024M", "-XX:MaxPermSize=256M", "-Dplugin.version=" + version.value)
     },
