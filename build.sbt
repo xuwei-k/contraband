@@ -48,6 +48,36 @@ lazy val plugin = (project in file("plugin")).
     name := "sbt-contraband",
     description := "sbt plugin to generate growable datatypes.",
     ScriptedPlugin.scriptedSettings,
+    ScriptedPlugin.scriptedRun := {
+      // https://github.com/sbt/sbt/blob/v1.0.0-M6/scripted/plugin/src/main/scala/sbt/ScriptedPlugin.scala#L73-L81
+      // workaround https://github.com/sbt/sbt/issues/3245
+      ScriptedPlugin.scriptedTests.value.getClass.getMethod("run",
+                                           classOf[File],
+                                           classOf[Boolean],
+                                           classOf[Array[String]],
+                                           classOf[File],
+                                           classOf[Array[String]],
+                                           classOf[java.util.List[File]])
+    },
+    // https://github.com/sbt/sbt/blob/v1.0.0-M6/scripted/plugin/src/main/scala/sbt/ScriptedPlugin.scala#L130-L144
+    ScriptedPlugin.scripted := {
+      val p = ScriptedPlugin.asInstanceOf[{def scriptedParser(f: File): complete.Parser[Seq[String]]}]
+      Def.inputTask {
+        val args = p.scriptedParser(sbtTestDirectory.value).parsed
+        val prereq: Unit = scriptedDependencies.value
+        try {
+          scriptedRun.value.invoke(
+            scriptedTests.value,
+            sbtTestDirectory.value,
+            scriptedBufferLog.value: java.lang.Boolean,
+            args.toArray,
+            sbtLauncher.value,
+            scriptedLaunchOpts.value.toArray,
+            new java.util.ArrayList()
+          )
+        } catch { case e: java.lang.reflect.InvocationTargetException => throw e.getCause }
+      }
+    },
     scriptedLaunchOpts := { scriptedLaunchOpts.value ++
       Seq("-Xmx1024M", "-XX:MaxPermSize=256M", "-Dplugin.version=" + version.value)
     },
