@@ -49,33 +49,41 @@ lazy val plugin = (project in file("plugin")).
     description := "sbt plugin to generate growable datatypes.",
     ScriptedPlugin.scriptedSettings,
     ScriptedPlugin.scriptedRun := {
-      // https://github.com/sbt/sbt/blob/v1.0.0-M6/scripted/plugin/src/main/scala/sbt/ScriptedPlugin.scala#L73-L81
-      // workaround https://github.com/sbt/sbt/issues/3245
-      ScriptedPlugin.scriptedTests.value.getClass.getMethod("run",
-                                           classOf[File],
-                                           classOf[Boolean],
-                                           classOf[Array[String]],
-                                           classOf[File],
-                                           classOf[Array[String]],
-                                           classOf[java.util.List[File]])
+      if((sbtVersion in pluginCrossBuild).value == "1.0.0-M5") {
+        // https://github.com/sbt/sbt/blob/v1.0.0-M6/scripted/plugin/src/main/scala/sbt/ScriptedPlugin.scala#L73-L81
+        // workaround https://github.com/sbt/sbt/issues/3245
+        ScriptedPlugin.scriptedTests.value.getClass.getMethod("run",
+                                             classOf[File],
+                                             classOf[Boolean],
+                                             classOf[Array[String]],
+                                             classOf[File],
+                                             classOf[Array[String]],
+                                             classOf[java.util.List[File]])
+      } else {
+        ScriptedPlugin.scriptedRunTask.value
+      }
     },
     // https://github.com/sbt/sbt/blob/v1.0.0-M6/scripted/plugin/src/main/scala/sbt/ScriptedPlugin.scala#L130-L144
     ScriptedPlugin.scripted := {
-      val p = ScriptedPlugin.asInstanceOf[{def scriptedParser(f: File): complete.Parser[Seq[String]]}]
-      Def.inputTask {
-        val args = p.scriptedParser(sbtTestDirectory.value).parsed
-        val prereq: Unit = scriptedDependencies.value
-        try {
-          scriptedRun.value.invoke(
-            scriptedTests.value,
-            sbtTestDirectory.value,
-            scriptedBufferLog.value: java.lang.Boolean,
-            args.toArray,
-            sbtLauncher.value,
-            scriptedLaunchOpts.value.toArray,
-            new java.util.ArrayList()
-          )
-        } catch { case e: java.lang.reflect.InvocationTargetException => throw e.getCause }
+      if((sbtVersion in pluginCrossBuild).value == "1.0.0-M5") {
+        val p = ScriptedPlugin.asInstanceOf[{def scriptedParser(f: File): complete.Parser[Seq[String]]}]
+        Def.inputTask {
+          val args = p.scriptedParser(sbtTestDirectory.value).parsed
+          val prereq: Unit = scriptedDependencies.value
+          try {
+            scriptedRun.value.invoke(
+              scriptedTests.value,
+              sbtTestDirectory.value,
+              scriptedBufferLog.value: java.lang.Boolean,
+              args.toArray,
+              sbtLauncher.value,
+              scriptedLaunchOpts.value.toArray,
+              new java.util.ArrayList()
+            )
+          } catch { case e: java.lang.reflect.InvocationTargetException => throw e.getCause }
+        }
+      } else {
+        ScriptedPlugin.scriptedTask.evaluated
       }
     },
     scriptedLaunchOpts := { scriptedLaunchOpts.value ++
