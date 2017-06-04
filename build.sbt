@@ -48,33 +48,31 @@ lazy val plugin = (project in file("plugin")).
     name := "sbt-contraband",
     description := "sbt plugin to generate growable datatypes.",
     ScriptedPlugin.scriptedSettings,
-    ScriptedPlugin.scriptedRun := {
-      if((sbtVersion in pluginCrossBuild).value == "1.0.0-M5") {
-        // https://github.com/sbt/sbt/blob/v1.0.0-M6/scripted/plugin/src/main/scala/sbt/ScriptedPlugin.scala#L73-L81
-        // workaround https://github.com/sbt/sbt/issues/3245
-        ScriptedPlugin.scriptedTests.value.getClass.getMethod("run",
-                                             classOf[File],
-                                             classOf[Boolean],
-                                             classOf[Array[String]],
-                                             classOf[File],
-                                             classOf[Array[String]],
-                                             classOf[java.util.List[File]])
-      } else {
-        ScriptedPlugin.scriptedRunTask.value
-      }
-    },
-    // https://github.com/sbt/sbt/blob/v1.0.0-M6/scripted/plugin/src/main/scala/sbt/ScriptedPlugin.scala#L130-L144
     ScriptedPlugin.scripted := {
-      if((sbtVersion in pluginCrossBuild).value == "1.0.0-M5") {
+      if((sbtVersion in pluginCrossBuild).value == "1.0.0-M6") {
+        // workaround https://github.com/sbt/sbt/issues/3245
+        // https://github.com/sbt/sbt/blob/v1.0.0-M6/scripted/plugin/src/main/scala/sbt/ScriptedPlugin.scala#L130-L144
+        // https://github.com/sbt/sbt/blob/v1.0.0-M6/scripted/plugin/src/main/scala/sbt/ScriptedPlugin.scala#L73-L81
+        val method = ScriptedPlugin.scriptedTests.value.asInstanceOf[{
+          def run(
+            x: File,
+            x: Boolean,
+            x: Array[String],
+            x: File,
+            x: Array[String],
+            x: java.util.List[File]
+          )
+        }]
         val p = ScriptedPlugin.asInstanceOf[{def scriptedParser(f: File): complete.Parser[Seq[String]]}]
+
         Def.inputTask {
           val args = p.scriptedParser(sbtTestDirectory.value).parsed
           val prereq: Unit = scriptedDependencies.value
           try {
-            scriptedRun.value.invoke(
+            method.run(
               scriptedTests.value,
               sbtTestDirectory.value,
-              scriptedBufferLog.value: java.lang.Boolean,
+              scriptedBufferLog.value,
               args.toArray,
               sbtLauncher.value,
               scriptedLaunchOpts.value.toArray,
