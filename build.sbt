@@ -7,6 +7,7 @@ lazy val pluginSettings = Seq(
 
 lazy val root = (project in file(".")).
   enablePlugins(NoPublish, TravisSitePlugin).
+  disablePlugins(ScriptedPlugin).
   aggregate(library, plugin).
   settings(
     inThisBuild(List(
@@ -34,7 +35,7 @@ lazy val root = (project in file(".")).
 
 lazy val library = (project in file("library")).
   enablePlugins(KeywordPlugin, SonatypePublish).
-  disablePlugins(BintrayPlugin).
+  disablePlugins(BintrayPlugin, ScriptedPlugin).
   settings(
     name := "contraband",
     libraryDependencies ++= Seq(parboiled) ++ jsonDependencies.value ++ Seq(scalaTest % Test, diffutils % Test)
@@ -47,7 +48,6 @@ lazy val plugin = (project in file("plugin")).
     pluginSettings,
     name := "sbt-contraband",
     description := "sbt plugin to generate growable datatypes.",
-    scriptedSettings,
     scriptedLaunchOpts := { scriptedLaunchOpts.value ++
       Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
     },
