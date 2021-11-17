@@ -20,7 +20,7 @@ class ScalaCodeGen(javaLazy: String, javaOptional: String, instantiateJavaOption
       s.endsWith("{") ||
       (s.contains(" class ") && s.endsWith("(")) // Constructor definition
     override def reduceIndentTrigger(s: String) = s.startsWith("}")
-    override def reduceIndentAfterTrigger(s: String) = s.endsWith(") {") || s.endsWith(" Serializable {") // End of constructor definition
+    override def reduceIndentAfterTrigger(s: String) = (!s.contains(" if") && s.endsWith(") {")) || s.endsWith(" Serializable {") // End of constructor definition
     override def enterMultilineJavadoc(s: String) = s == "/**"
     override def exitMultilineJavadoc(s: String) = s == "*/"
   }
