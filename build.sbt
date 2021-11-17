@@ -32,7 +32,8 @@ lazy val library = (project in file("library"))
   .disablePlugins(BintrayPlugin)
   .settings(
     name := "contraband",
-    unmanagedSourceDirectories in Compile += {
+    scalacOptions += "-Xignore-scala2-macros",
+    Compile / unmanagedSourceDirectories += {
       CrossVersion.partialVersion(scalaVersion.value) match {
         case Some((2, v)) if v <= 12 =>
           baseDirectory.value / "src/main/scala-2.13-"
@@ -56,5 +57,5 @@ lazy val plugin = (project in file("plugin"))
         Seq("-Xmx1024M", "-Dplugin.version=" + version.value)
     },
     crossScalaVersions := Seq(scala212),
-    publishLocal := (publishLocal dependsOn (publishLocal in library)).value
+    publishLocal := (publishLocal dependsOn (library / publishLocal)).value
   )
