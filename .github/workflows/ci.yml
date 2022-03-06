@@ -8,10 +8,6 @@ jobs:
     timeout-minutes: 20
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - jobtype: 1
-          - jobtype: 2
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-java@v2
@@ -19,12 +15,8 @@ jobs:
         java-version: 11
         distribution: adopt
     - uses: coursier/cache-action@v6
-    - if: ${{ matrix.jobtype == 1 }}
-      shell: bash
-      run: sbt -v "++2.13.8!" library/test
-    - if: ${{ matrix.jobtype == 2 }}
-      shell: bash
-      run: sbt -v "++2.12.15!" scalafmtCheckAll test scripted
+    - shell: bash
+      run: sbt -v "++3.1.1!" Test/compile
     - shell: bash
       run: |
         rm -rf "$HOME/.sbt/scripted/" || true

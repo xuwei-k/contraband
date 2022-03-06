@@ -186,7 +186,7 @@ trait TypeSystemDefinitions {
   def `type` = rule { Keyword("type") }
   def interface = rule { Keyword("interface") }
   def union = rule { Keyword("union") }
-  def enum = rule { Keyword("enum") }
+  def `enum` = rule { Keyword("enum") }
   def inputType = rule { Keyword("input") }
   def implements = rule { Keyword("implements") }
   def extend = rule { Keyword("extend") }
@@ -257,7 +257,7 @@ trait TypeSystemDefinitions {
   // def UnionMembers = rule { NamedType.+(ws('|')) ~> (_.toList) }
 
   def EnumTypeDefinition = rule {
-    Comments ~ trackPos ~ enum ~ Name ~ (Directives.? ~> (_ getOrElse Nil)) ~ wsNoComment(
+    Comments ~ trackPos ~ `enum` ~ Name ~ (Directives.? ~> (_ getOrElse Nil)) ~ wsNoComment(
       '{'
     ) ~ EnumValueDefinition.+ ~ ExtraComments ~ wsNoComment('}') ~> ((comment, pos, name, dirs, values, tc) ⇒
       ast.EnumTypeDefinition(name, None, values.toList, dirs, comment, tc, Some(pos))
