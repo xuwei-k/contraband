@@ -1,7 +1,7 @@
 package sbt.contraband
 
 import sbt.Keys._
-import sbt._
+import sbt.{ given, _ }
 import sbt.contraband.ast._
 import sbt.contraband.parser.{ JsonParser, SchemaParser }
 
@@ -108,7 +108,14 @@ object ContrabandPlugin extends AutoPlugin {
     )
 
   override def globalSettings = Seq(
-    contrabandSjsonNewVersion := "0.9.0"
+    contrabandSjsonNewVersion := {
+      scalaBinaryVersion.value match {
+        case "3" =>
+          "0.13.1"
+        case _ =>
+          "0.9.0"
+      }
+    }
   )
 }
 
