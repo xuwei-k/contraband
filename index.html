@@ -1,0 +1,105 @@
+<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html>
+      <head>
+        <meta charset="utf-8"/>
+        <meta content="width=device-width, initial-scale=1" name="viewport"/>
+        <title>Contraband — Contraband</title>
+        
+        <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css"/>
+        <link rel="stylesheet" href="css/pamflet.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/pamflet-print.css" type="text/css" media="print"/>
+        <link rel="stylesheet" href="css/pamflet-grid.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
+        <link rel="stylesheet" href="css/color_scheme-redmond.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/color_scheme-github.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/color_scheme-monokai.css" type="text/css" media="screen, projection"/>
+        <link rel="stylesheet" href="css/pamfletheight_2em_2em.css" type="text/css" media="screen and (min-device-width: 800px), projection"/>
+        <script type="text/javascript" src="js/jquery.min.js"></script>
+        <script type="text/javascript" src="js/bootstrap.bundle.min.js"></script>
+        <script type="text/javascript" src="js/pamflet.js"></script>
+        <script type="text/javascript">
+          Pamflet.page.language = 'en';
+        </script>
+        <script type="text/javascript" src="js/prettify/prettify.js"></script><script type="text/javascript" src="js/prettify/lang-scala.js"></script><link type="text/css" rel="stylesheet" href="css/prettify.css"/><script type="text/javascript"><!--
+        window.onload=function() { prettyPrint(); };
+      --></script>
+        <link rel="stylesheet" href="css/custom.css" type="text/css" media="screen, projection"/>
+        
+        
+      </head>
+      <body class="color_scheme-github">
+        <div class="container-fluid contentswrapper h-100">
+          <div class="row minh-100">
+          <div class="col-md-4 col-xl-3 toccolumn leftcolumn">
+                  <div class="lefttocwrapper">
+      <div class="tocwrapper">
+        
+        <div class="tocbody show" id="toc">
+        
+        <div class="current">Contraband</div><ol class="toc"> <li><div><a href="schema.html">Schemas and Types</a></div></li><li><div><a href="code-generation.html">Code generation</a></div></li><li><div><a href="json.html">JSON codec generation</a></div></li><li class="generated"><div><a href="Contents+in+Depth.html">Contents in Depth</a></div></li><li class="generated"><div><a href="Combined+Pages.html">Combined Pages</a></div></li> </ol></div>
+      </div>
+      </div>
+                </div><div class="col-md-8 col-xs-9">
+                  <div class="rightcolumn contents">
+                  <h1 id="Contraband">Contraband<a href="#Contraband" class="header-link"><span class="header-link-content">&nbsp;</span></a></h1><p>Contraband is a description language for your datatypes and APIs,
+currently targeting Java and Scala.
+</p><p>You describe the types and fields of your API,
+and Contraband will:
+</p><ul><li>generate either Java classes, or a pseudo case classes in Scala.
+</li><li>generate JSON bindings for the datatypes.
+</li></ul><p>Contraband also enables you to evolve the API over time.
+</p><h3 id="Setup">Setup<a href="#Setup" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>To enable the Contraband plugin for your build, put the following line in <code>project/contraband.sbt</code>:
+</p><pre><code class="prettyprint lang-scala">addSbtPlugin(&quot;org.scala-sbt&quot; % &quot;sbt-contraband&quot; % &quot;X.Y.Z&quot;)
+</code></pre><p>Your Contraband schema should be placed in <code>src/main/contraband</code> and <code>src/test/contraband</code>.
+Here’s how your build should be configured:
+</p><pre><code class="prettyprint lang-scala">lazy val library = (project in file(&quot;library&quot;)).
+  enablePlugins(ContrabandPlugin).
+  settings(
+    name := &quot;foo library&quot;
+  )
+</code></pre><h3 id="Note">Note<a href="#Note" class="header-link"><span class="header-link-content">&nbsp;</span></a></h3><p>Contraband is NOT supported under the Lightbend subscription.
+</p><div class="bottom nav">
+                <div class="row">
+                  <div class="col-md-auto">
+                    <a href="schema.html">
+                      <div class="arrowitem">
+                        <span class="arrow">❧</span>
+                      </div>
+
+                      <div class="arrowitem">
+                        <em>Next page</em><br/>
+                        Schemas and Types
+                      </div>
+
+                    </a>
+                  </div>
+                </div>
+                <div class="row w-100">
+        <div class="col-md-auto ml-auto">
+          <ul class="language-bar">
+            <li><a href="index.html"><span class="lang-item lang-en">English</span></a></li><li><a href="ja/index.html"><span class="lang-item lang-ja">日本語</span></a></li>
+          </ul>
+        </div>
+      </div>
+              </div>
+                  </div>
+                </div>
+          </div> <!-- row -->
+        </div>
+        <div class="header">
+          <div class="container-fluid top nav">
+        <div class="row justify-content-md-center w-100">
+          <div class="col-md-auto">
+            <div class="title">
+              <span>Contraband</span> 
+            </div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="footer">
+          
+        </div>
+        
+        
+      </body>
+    </html>
