@@ -19,7 +19,8 @@ class ScalaCodeGen(
     scalaPrivateConstructor: Boolean,
     wrapOption: Boolean,
     scalaVersion: String,
-    scala3enum: Boolean
+    scala3enum: Boolean,
+    interfaceEqualsHashCode: Boolean
 ) extends CodeGenerator {
 
   implicit object indentationConfiguration extends IndentationConfiguration {
@@ -176,8 +177,8 @@ class ScalaCodeGen(
          |  $alternativeCtors
          |  $lazyMembers
          |  $messages
-         |  ${genEquals(i, intfLang)}
-         |  ${genHashCode(i, intfLang)}
+         |  ${if (interfaceEqualsHashCode) genEquals(i, intfLang) else ""}
+         |  ${if (interfaceEqualsHashCode) genHashCode(i, intfLang) else ""}
          |  ${genToString(i, toStringImpl)}
          |}
          |

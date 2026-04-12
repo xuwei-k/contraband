@@ -25,6 +25,7 @@ class GraphQLMixedCodeGenSpec extends AnyFlatSpec with Matchers with Inside with
       wrapOption = true,
       scalaVersion = scalaVersion,
       scala3enum = false,
+      interfaceEqualsHashCode = true
     )
     val code = gen.generate(ast)
 

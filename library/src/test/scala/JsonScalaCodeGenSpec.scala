@@ -476,6 +476,7 @@ object primitiveTypesExample2 {
       wrapOption = true,
       scalaVersion = scalaVersion,
       scala3enum = false,
+      interfaceEqualsHashCode = true,
     )
   val javaLazy = "com.example.Lazy"
   val outputFile = new File("output.scala")

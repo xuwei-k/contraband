@@ -18,7 +18,8 @@ class MixedCodeGen(
     scalaPrivateConstructor: Boolean,
     wrapOption: Boolean,
     scalaVersion: String,
-    scala3enum: Boolean
+    scala3enum: Boolean,
+    interfaceEqualsHashCode: Boolean
 ) extends CodeGenerator {
   val javaGen = new JavaCodeGen(javaLazy, javaOptional, instantiateJavaOptional, wrapOption)
   val scalaGen = new ScalaCodeGen(
@@ -31,7 +32,8 @@ class MixedCodeGen(
     scalaPrivateConstructor,
     wrapOption,
     scalaVersion,
-    scala3enum
+    scala3enum,
+    interfaceEqualsHashCode
   )
 
   def generate(s: Document): ListMap[File, String] =

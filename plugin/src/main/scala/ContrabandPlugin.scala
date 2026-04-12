@@ -35,6 +35,7 @@ object ContrabandPlugin extends AutoPlugin {
     val contrabandFormatsForType = settingKey[Type => List[String]]("Function that maps types to the list of required codecs for them.")
     val contrabandSjsonNewVersion = settingKey[String]("The version of sjson-new to use")
     val contrabandScala3enum = settingKey[Boolean]("")
+    val contrabandInterfaceEqualsHashCode = settingKey[Boolean]("")
 
     lazy val baseContrabandSettings: Seq[Def.Setting[?]] = Seq(
       generateContrabands / skipGeneration := false,
@@ -56,6 +57,7 @@ object ContrabandPlugin extends AutoPlugin {
       generateContrabands / contrabandInstantiateJavaOptional := CodeGen.instantiateJavaOptional,
       generateContrabands / contrabandFormatsForType := CodecCodeGen.formatsForType,
       generateContrabands / contrabandScala3enum := (scalaBinaryVersion.value == "3"),
+      generateContrabands / contrabandInterfaceEqualsHashCode := false,
       generateContrabands := Def.uncached {
         Generate(
           (generateContrabands / contrabandSource).value,
@@ -76,6 +78,7 @@ object ContrabandPlugin extends AutoPlugin {
           (generateContrabands / contrabandFormatsForType).value,
           streams.value,
           (generateContrabands / contrabandScala3enum).value,
+          (generateContrabands / contrabandInterfaceEqualsHashCode).value,
         )
       },
       Compile / sourceGenerators += generateContrabands.taskValue
@@ -136,7 +139,8 @@ object Generate {
       instantiateJavaOptional: (String, String) => String,
       formatsForType: Type => List[String],
       log: Logger,
-      scala3enum: Boolean
+      scala3enum: Boolean,
+      interfaceEqualsHashCode: Boolean,
   ): Seq[File] = {
     val jsonFiles = definitions.toList collect {
       case f: File if f.getName endsWith ".json" => f
@@ -160,7 +164,8 @@ object Generate {
       scalaPrivateConstructor,
       wrapOption,
       scalaVersion,
-      scala3enum
+      scala3enum,
+      interfaceEqualsHashCode
     )
     val jsonFormatsGenerator = new CodecCodeGen(
       codecParents = codecParents,
@@ -232,6 +237,7 @@ object Generate {
       formatsForType: Type => List[String],
       s: TaskStreams,
       scala3enum: Boolean,
+      interfaceEqualsHashCode: Boolean
   ): Seq[File] = {
     val definitions = IO listFiles base
     def gen() = generate(
@@ -252,7 +258,8 @@ object Generate {
       instantiateJavaOptional,
       formatsForType,
       s.log,
-      scala3enum
+      scala3enum,
+      interfaceEqualsHashCode
     )
 
     val scalaVersionSubDir = scalaVersion match {
